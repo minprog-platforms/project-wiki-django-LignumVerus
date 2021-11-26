@@ -1,4 +1,4 @@
-# OpenPedia/ CrowdPedia/ aidepikiW
+# OpenPedia
 
 This application is an encyclopedia where users
 can visit pages about certain topics, search
