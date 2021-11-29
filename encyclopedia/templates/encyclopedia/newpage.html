@@ -1,5 +1,7 @@
 {% extends "encyclopedia/layout.html" %}
 
+{% load bootstrap %}
+
 {% block title %}
     New Page
 {% endblock %}
@@ -8,7 +10,7 @@
     <h1>Create a new page</h1>
     <form action="{% url 'newpage' %}" method="post">
         {% csrf_token %}
-        {{ form }}
+        {{ form|bootstrap }}
         <input type="submit" value="Save">
     </form>
 {% endblock %}

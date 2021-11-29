@@ -12,18 +12,27 @@ def index(request):
     })
 
 class NewPageForm(forms.Form):
-    title = forms.CharField(label="title", strip=True)
-    text = forms.CharField(label="text", strip=True)
+    title = forms.CharField(label="Give a title:", strip=True)
+    text = forms.CharField(label="Enter your contents in Markdown:", 
+                            strip=True,
+                            widget=forms.Textarea)
 
 def newpage(request):
-    #title = request.POST.get("new_title")
     if request.method == "POST":
         form = NewPageForm(request.POST)
 
         if form.is_valid():
-            title = form.cleaned_data["title"]
-            text = form.cleaned_data["text"]
-            util.save_entry(title, text)
+            title = form.cleaned_data.get("title")
+            text = form.cleaned_data.get("text")
+            articles = util.list_entries()
+            articles_lower = list(map(lambda article: article.lower(), articles))
+
+            if title.lower() not in articles_lower:
+                util.save_entry(title, text)
+                return entrypage(request, title)
+            else:
+                error = "The page you are trying to create already exists!"
+                return errorpage(request, error)
 
     return render(request, "encyclopedia/newpage.html", {
         "form": NewPageForm()
@@ -40,10 +49,13 @@ def entrypage(request, article):
         "text": text
         })
     except:
-        return errorpage(request)
+        error = "The page you are trying to reach does not exist (yet!)"
+        return errorpage(request, error)
 
-def errorpage(request):
-    return render(request, "encyclopedia/errorpage.html")
+def errorpage(request, error):
+    return render(request, "encyclopedia/errorpage.html", {
+        "errormessage": error
+    })
 
 def search(request):
     searched = request.POST.get("q")
@@ -53,6 +65,7 @@ def search(request):
     articles_lower = list(map(lambda article: article.lower(), articles))
 
     i = 0
+
     for article_lower in articles_lower:
         if str(searched_lower) == article_lower:
             return entrypage(request, articles[i])
